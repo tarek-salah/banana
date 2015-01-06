@@ -39,6 +39,8 @@ define([
                 query: '*:*',
                 custom: ''
             },
+            sort    : ['event_timestamp','desc'],
+            sortable: false,
             max_rows: 1000, // maximum number of rows returned from Solr
             field: 'date',
             xAxis: 'Date',
@@ -92,9 +94,13 @@ define([
             var wt_json = '&wt=csv';
             var fl = '&fl=' + $scope.panel.xaxis + ',' + $scope.panel.yaxis + ',' + $scope.panel.field_type;
             var rows_limit = '&rows=' + $scope.panel.max_rows;
-            //var sort = '&sort=' + $scope.panel.field + ' asc';
+            var sorting = '';
 
-            $scope.panel.queries.query = querySrv.getORquery() + fq + fl + wt_json + rows_limit;
+            if ($scope.panel.sort[0] !== undefined && $scope.panel.sort[1] !== undefined && $scope.panel.sortable) {
+                sorting = '&sort=' + $scope.panel.sort[0] + ' ' + $scope.panel.sort[1];
+            }
+
+            $scope.panel.queries.query = querySrv.getORquery() + fq + sorting + fl + wt_json + rows_limit;
 
             // Set the additional custom query
             if ($scope.panel.queries.custom != null) {
@@ -124,6 +130,15 @@ define([
 
         $scope.set_refresh = function(state) {
             $scope.refresh = state;
+        };
+
+        $scope.set_sort = function(field) {
+            if ($scope.panel.sort[0] === field) {
+                $scope.panel.sort[1] = $scope.panel.sort[1] === 'asc' ? 'desc' : 'asc';
+            } else {
+                $scope.panel.sort[0] = field;
+            }
+            $scope.get_data();
         };
 
         $scope.close_edit = function() {
